@@ -125,3 +125,61 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "bookshelf.CustomUser"
 
 
+# SECURITY SETTINGS (add / update these in LibraryProject/settings.py)
+
+# --- General ---
+# In production, set DEBUG = False. For development set True.
+DEBUG = False    # <-- set to False for production
+
+# Make sure to configure ALLOWED_HOSTS in production
+ALLOWED_HOSTS = ["yourdomain.com", "www.yourdomain.com", "127.0.0.1"]
+
+# --- Cookie & Transport security ---
+# Ensure cookies are sent over HTTPS only in production
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Prevent JavaScript from reading the CSRF cookie in some cases
+CSRF_COOKIE_HTTPONLY = False  # usually False because Django's csrftoken is read by JS for AJAX; keep False unless you handle differently
+
+# --- Browser protections ---
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"  # or 'SAMEORIGIN' if you need frames from same origin
+
+# --- HSTS (only enable in production with HTTPS) ---
+SECURE_HSTS_SECONDS = 31536000  # 1 year - enable only after ensuring HTTPS
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# --- Content Security Policy (CSP) ---
+# Option A: use django-csp (recommended)
+# Install: pip install django-csp
+# Then add 'csp' to INSTALLED_APPS and 'csp.middleware.CSPMiddleware' to MIDDLEWARE (see below)
+
+# Option B (manual header) - example default
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)  # adjust for allowed CDNs
+CSP_STYLE_SRC = ("'self'",)   # adjust for allowed CDNs
+
+# --- MIDDLEWARE (ensure order) ---
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    # If using django-csp, include its middleware here:
+    # "csp.middleware.CSPMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    # ... other middleware ...
+]
+# example django-csp config
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "https://cdnjs.cloudflare.com")
+CSP_STYLE_SRC = ("'self'", "https://cdnjs.cloudflare.com")
+CSP_IMG_SRC = ("'self'", "data:")
+
+# --- Media for profile photos (already needed) ---
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

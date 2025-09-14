@@ -1,15 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from .models import Book
 from .forms import BookForm
+from django.db.models import Q
 
 # Create your views here.
 
 
 @permission_required("bookshelf.can_view", raise_exception=True)
 def book_list(request):
+    q = request.GET.get("q", "").strip()
     books = Book.objects.all()
-    return render(request, "bookshelf/book_list.html", {"books": books})
+    if q:
+        # Use ORM lookups, not raw SQL or string formatting
+        books = books.filter(Q(title__icontains=q) | Q(author__icontains=q))
+    return render(request, "bookshelf/book_list.html", {"books": books, "q": q})
 
 @permission_required("bookshelf.can_create", raise_exception=True)
 def add_book_view(request):
@@ -37,5 +42,7 @@ def edit_book_view(request, pk):
 @permission_required("bookshelf.can_delete", raise_exception=True)
 def delete_book_view(request, pk):
     book = get_object_or_404(Book, pk=pk)
-    book.delete()
-    return redirect("book_list")
+    if request.method == "POST":
+        book.delete()
+        return redirect("book_list")
+    return render(request, "bookshelf/confirm_delete.html", {"book": book})

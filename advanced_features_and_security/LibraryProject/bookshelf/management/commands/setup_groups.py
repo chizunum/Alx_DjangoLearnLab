@@ -9,6 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # Get content type for the Book model
         content_type = ContentType.objects.get_for_model(Book)
+        Permission.objects.get(codename="can_edit", content_type=content_type)
 
         # Define custom permissions (must match those in models.py)
         permissions = {

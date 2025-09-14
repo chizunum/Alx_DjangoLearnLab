@@ -9,6 +9,12 @@ class BookForm(forms.ModelForm):
         fields = ["title", "author", "published_date"]
 
 
+    def clean_title(self):
+        title = self.cleaned_data.get("title", "").strip()
+        # Example simple sanitizer: limit length & remove suspicious characters
+        if len(title) > 200:
+            raise forms.ValidationError("Title too long.")
+        return title
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
