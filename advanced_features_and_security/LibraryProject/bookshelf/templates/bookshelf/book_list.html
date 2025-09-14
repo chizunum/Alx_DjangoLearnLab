@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Books</h2>
+
+  <table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Published Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for book in books %}
+        <tr>
+          <td>{{ book.title|escape }}</td>
+          <td>{{ book.author|escape }}</td>
+          <td>{{ book.published_date }}</td>
+          <td>
+            {% if perms.bookshelf.can_edit %}
+              <a href="{% url 'edit_book' book.pk %}">Edit</a>
+            {% endif %}
+            {% if perms.bookshelf.can_delete %}
+              <a href="{% url 'delete_book' book.pk %}" 
+                 onclick="return confirm('Are you sure you want to delete this book?');">
+                 Delete
+              </a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4">No books available.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if perms.bookshelf.can_create %}
+    <p><a href="{% url 'add_book' %}">Add New Book</a></p>
+  {% endif %}
+
+{% endblock %}

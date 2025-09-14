@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import permission_required, login_required
 from .models import Book
 from .forms import BookForm
 from django.db.models import Q
+from .forms import ExampleForm
+
 
 # Create your views here.
 
@@ -46,3 +48,14 @@ def delete_book_view(request, pk):
         book.delete()
         return redirect("book_list")
     return render(request, "bookshelf/confirm_delete.html", {"book": book})
+
+def example_form_view(request):
+    if request.method == "POST":
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            # do something safe with form.cleaned_data
+            return redirect("book_list")
+    else:
+        form = ExampleForm()
+
+    return render(request, "bookshelf/form_example.html", {"form": form})
