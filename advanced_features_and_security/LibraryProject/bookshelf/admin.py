@@ -7,8 +7,8 @@ from .models import CustomUser
 # Register your models here.
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ("title", "author", "publication_year")  # shows these columns in list view
-    list_filter = ("publication_year", "author")            # filters on the right sidebar
+    list_display = ("title", "author", "publication_year")
+    list_filter = ("published_date",)        # filters on the right sidebar
     search_fields = ("title", "author")                     # search box
 
 class CustomUserAdmin(UserAdmin):
