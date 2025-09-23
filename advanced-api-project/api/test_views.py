@@ -30,12 +30,12 @@ class BookAPITestCase(APITestCase):
     def test_list_books(self):
         url = reverse("book-list")
         resp = self.client.get(url)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(resp.data), 2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response.data), 2)
 
     def test_retrieve_book(self):
         url = reverse("book-detail", kwargs={"pk": self.book1.pk})
         resp = self.client.get(url)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.data["title"], self.book1.title)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["title"], self.book1.title)
 
