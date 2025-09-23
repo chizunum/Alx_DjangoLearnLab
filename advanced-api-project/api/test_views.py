@@ -39,3 +39,69 @@ class BookAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["title"], self.book1.title)
 
+    def test_create_book_authenticated(self):
+    # ✅ Login the test user instead of force_authenticate
+    self.client.login(username="testuser", password="password123")
+
+    url = reverse("book-create")
+    author = Author.objects.create(name="Author C")
+
+    payload = {
+        "title": "New Book",
+        "author": author.id,
+        "publication_year": 2025,
+    }
+
+    response = self.client.post(url, payload, format="json")
+
+    self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    self.assertTrue(Book.objects.filter(title="New Book").exists())
+
+    def test_update_book_authenticated(self):
+    # ✅ use login instead of force_authenticate
+    self.client.login(username="testuser", password="password123")
+
+    url = reverse("book-update", kwargs={"pk": self.book2.pk})
+    payload = {
+        "title": "Book Two Updated",
+        "author": self.book2.author.id,
+        "publication_year": self.book2.publication_year,
+    }
+
+    response = self.client.patch(url, payload, format="json")
+
+    self.assertIn(response.status_code, (status.HTTP_200_OK, status.HTTP_202_ACCEPTED))
+    self.book2.refresh_from_db()
+    self.assertEqual(self.book2.title, "Book Two Updated")
+
+
+    def test_delete_book_authenticated(self):
+    # ✅ login the test user
+    self.client.login(username="testuser", password="password123")
+
+    author = Author.objects.create(name="Temp Author")
+    b = Book.objects.create(title="Temp Book", author=author, publication_year=2000)
+
+    url = f"/api/books/{b.id}/delete/"
+    response = self.client.delete(url)
+
+    self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    self.assertFalse(Book.objects.filter(id=b.id).exists())  # ✅ verify book is gone
+
+
+    def test_delete_book_unauthenticated(self):
+    author = Author.objects.create(name="Temp Author 2")
+    b = Book.objects.create(title="Another Temp", author=author, publication_year=1999)
+
+    url = f"/api/books/{b.id}/delete/"
+    response = self.client.delete(url)
+
+    self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    self.assertTrue(Book.objects.filter(id=b.id).exists())  # ✅ still in DB
+
+
+
+      
+
+
+
