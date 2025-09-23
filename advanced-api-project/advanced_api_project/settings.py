@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
 
     # Third-party
     'rest_framework',
@@ -44,6 +45,14 @@ INSTALLED_APPS = [
     # Local
     'api',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ]
+}
 
 # Database → default SQLite for simplicity
 # (Already set by default, no changes needed unless you want PostgreSQL/MySQL)

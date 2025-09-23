@@ -31,3 +31,14 @@
 - **Method:** DELETE
 - **Access:** Authenticated users only
 - **Description:** Deletes a book.
+
+### Filtering
+- `/api/books/?author=Rowling`
+- `/api/books/?publication_year=2005`
+
+### Searching
+- `/api/books/?search=Harry`
+
+### Ordering
+- `/api/books/?ordering=title`
+- `/api/books/?ordering=-publication_year`
