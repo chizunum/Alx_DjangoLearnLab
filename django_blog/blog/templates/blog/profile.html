@@ -1,0 +1,12 @@
+{% extends "blog/base.html" %}
+{% block title %}Profile - Django Blog{% endblock %}
+{% block content %}
+  <h1>Profile</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p>Username: {{ request.user.username }}</p>
+    <p>Email: {{ request.user.email }}</p>
+    {{ pform.as_p }}
+    <button type="submit">Save</button>
+  </form>
+{% endblock %}
