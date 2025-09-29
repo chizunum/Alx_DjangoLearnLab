@@ -5,6 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
 from .forms import RegisterForm, ProfileForm
 from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from .models import Post
+from .forms import PostForm
 
 # Create your views here.
 
@@ -39,3 +44,48 @@ def profile_view(request):
         pform = ProfileForm(instance=request.user.profile)
 
     return render(request, "blog/profile.html", {"pform": pform})
+
+def home(request):
+    return render(request, "blog/home.html")
+
+class PostListView(ListView):
+    model = Post
+    template_name = "blog/posts_list.html"   # customize path
+    context_object_name = "posts"
+    paginate_by = 6
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = "blog/post_detail.html"
+    context_object_name = "post"
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = "blog/post_form.html"
+    login_url = reverse_lazy("blog:login")
+
+    def form_valid(self, form):
+        # set author to current user
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = "blog/post_form.html"
+    login_url = reverse_lazy("blog:login")
+
+    def test_func(self):
+        post = self.get_object()
+        return post.author == self.request.user
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = "blog/post_confirm_delete.html"
+    success_url = reverse_lazy("blog:posts-list")
+    login_url = reverse_lazy("blog:login")
+
+    def test_func(self):
+        post = self.get_object()
+        return post.author == self.request.user

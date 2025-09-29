@@ -1,0 +1,49 @@
+{% extends "blog/base.html" %}
+{% block title %}All Posts{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Latest Posts</h1>
+    {% if user.is_authenticated %}
+      <a href="{% url 'blog:post-create' %}" class="bg-blue-600 text-white px-4 py-2 rounded">New Post</a>
+    {% endif %}
+  </div>
+
+  <div class="space-y-6">
+    {% for post in posts %}
+      <article class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-xl font-semibold">
+          <a href="{% url 'blog:post-detail' post.pk %}" class="text-blue-600 hover:underline">{{ post.title }}</a>
+        </h2>
+        <p class="text-sm text-gray-500">By {{ post.author.username }} • {{ post.published_date|date:"M d, Y H:i" }}</p>
+        <p class="mt-2 text-gray-700">{{ post.content|truncatechars:200 }}</p>
+        <div class="mt-3">
+          <a href="{% url 'blog:post-detail' post.pk %}" class="text-blue-600">Read more →</a>
+          {% if user == post.author %}
+            <span class="ml-4">
+              <a href="{% url 'blog:post-update' post.pk %}" class="text-indigo-600">Edit</a> |
+              <a href="{% url 'blog:post-delete' post.pk %}" class="text-red-600">Delete</a>
+            </span>
+          {% endif %}
+        </div>
+      </article>
+    {% empty %}
+      <p>No posts yet.</p>
+    {% endfor %}
+  </div>
+
+  <!-- pagination -->
+  {% if is_paginated %}
+    <div class="mt-6 flex justify-center space-x-2">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 border rounded">Prev</a>
+      {% endif %}
+      <span class="px-3 py-1 border rounded bg-gray-100">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 border rounded">Next</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
