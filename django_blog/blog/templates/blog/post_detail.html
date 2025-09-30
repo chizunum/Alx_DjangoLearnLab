@@ -12,6 +12,17 @@
       {{ post.content|linebreaks }}
     </div>
 
+    {% if post.tags.all %}
+    <p class="mt-4 text-sm text-gray-600">
+      Tags:
+      {% for tag in post.tags.all %}
+        <a href="{% url 'blog:posts_by_tag' slug=tag.slug %}" class="text-blue-600 hover:underline">
+          {{ tag.name }}
+        </a>{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+    {% endif %}
+
     <div class="mt-6">
       <a href="{% url 'blog:posts-list' %}" class="text-blue-600">← Back to posts</a>
       {% if user == post.author %}

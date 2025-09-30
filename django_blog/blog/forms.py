@@ -2,8 +2,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile, Post
-from .models import Comment
+from .models import Profile, Post, Comment, Tag
+
 
 # ---------- User Registration ----------
 class RegisterForm(UserCreationForm):
@@ -27,11 +27,16 @@ class ProfileForm(forms.ModelForm):
         fields = ("bio", "avatar")
 
 
-# ---------- Blog Post ----------
+# ---------- Blog Post (with tags) ----------
 class PostForm(forms.ModelForm):
+    tags = forms.CharField(
+        required=False,
+        help_text="Add tags separated by commas"
+    )
+
     class Meta:
         model = Post
-        fields = ["title", "content"]
+        fields = ["title", "content", "tags"]
         widgets = {
             "title": forms.TextInput(
                 attrs={
@@ -47,24 +52,40 @@ class PostForm(forms.ModelForm):
                 }
             ),
         }
+
+    def save(self, commit=True):
+        post = super().save(commit=False)
+        if commit:
+            post.save()
+        # Process tags from comma-separated string
+        tag_names = [t.strip() for t in self.cleaned_data["tags"].split(",") if t.strip()]
+        tag_objects = []
+        for name in tag_names:
+            tag_obj, _ = Tag.objects.get_or_create(name=name)
+            tag_objects.append(tag_obj)
+        post.tags.set(tag_objects)
+        return post
+
+
+# ---------- Comments ----------
 class CommentForm(forms.ModelForm):
     content = forms.CharField(
-      widget = forms.Textarea(attrs={
-       'rows': 3,
-       'placeholder': 'Write your comment...'
-      }),
-      max_length=2000,
-      label=''
+        widget=forms.Textarea(
+            attrs={
+                "rows": 3,
+                "placeholder": "Write your comment...",
+            }
+        ),
+        max_length=2000,
+        label="",
     )
 
-
-class Meta:
-    model = Comment
-    fields = ['content']
-
+    class Meta:
+        model = Comment
+        fields = ["content"]
 
     def clean_content(self):
-      content = self.cleaned_data.get('content', '').strip()
-      if not content:
-      raise forms.ValidationError('Comment cannot be empty.')
-      return content
+        content = self.cleaned_data.get("content", "").strip()
+        if not content:
+            raise forms.ValidationError("Comment cannot be empty.")
+        return content
