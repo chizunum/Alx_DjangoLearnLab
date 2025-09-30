@@ -1,0 +1,12 @@
+
+{# templates/comments/comment_form.html #}
+<form method="post" class="comment-form">
+{% csrf_token %}
+{{ form.non_field_errors }}
+<div class="form-group">
+{{ form.content.errors }}
+{{ form.content }}
+</div>
+<button type="submit">{{ view.__class__.__name__ == 'CommentUpdateView' and 'Update' or 'Post comment' }}</button>
+<a href="{% if view and view.kwargs.post_pk %}{% url 'blog:post_detail' pk=view.kwargs.post_pk %}{% else %}{% url 'blog:post_list' %}{% endif %}">Cancel</a>
+</form>

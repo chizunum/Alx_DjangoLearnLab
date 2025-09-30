@@ -1,0 +1,8 @@
+{# templates/comments/comment_list.html #}
+{% if comments %}
+{% for comment in comments %}
+{% include 'comments/_comment.html' with comment=comment %}
+{% endfor %}
+{% else %}
+<p>No comments yet. Be the first to comment!</p>
+{% endif %}

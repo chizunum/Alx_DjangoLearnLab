@@ -1,0 +1,8 @@
+{# templates/comments/comment_confirm_delete.html #}
+<form method="post" class="comment-delete-form">
+{% csrf_token %}
+<p>Are you sure you want to delete this comment?</p>
+<blockquote>{{ object.content|truncatechars:200 }}</blockquote>
+<button type="submit">Yes, delete</button>
+<a href="{% url 'blog:post_detail' pk=object.post.pk %}">Cancel</a>
+</form>

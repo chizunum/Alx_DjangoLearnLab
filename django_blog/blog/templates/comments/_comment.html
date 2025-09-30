@@ -1,0 +1,16 @@
+{# templates/comments/_comment.html #}
+<div class="comment" id="comment-{{ comment.id }}">
+<div class="comment-meta">
+<strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+<small>{{ comment.created_at|date:"M d, Y H:i" }}{% if comment.updated_at and comment.updated_at > comment.created_at %} (edited){% endif %}</small>
+
+
+{% if request.user == comment.author %}
+<span class="comment-actions">
+<a href="{% url 'blog:comment_edit' post_pk=comment.post.pk pk=comment.pk %}">Edit</a>
+<a href="{% url 'blog:comment_delete' post_pk=comment.post.pk pk=comment.pk %}">Delete</a>
+</span>
+{% endif %}
+</div>
+<div class="comment-body">{{ comment.content|linebreaks }}</div>
+</div>

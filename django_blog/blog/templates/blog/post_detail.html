@@ -5,7 +5,9 @@
 <div class="max-w-3xl mx-auto p-6">
   <article class="bg-white rounded-lg shadow p-6">
     <h1 class="text-3xl font-bold">{{ post.title }}</h1>
-    <p class="text-sm text-gray-500 mt-1">By {{ post.author.username }} • {{ post.published_date|date:"M d, Y H:i" }}</p>
+    <p class="text-sm text-gray-500 mt-1">
+      By {{ post.author.username }} • {{ post.published_date|date:"M d, Y H:i" }}
+    </p>
     <div class="mt-4 text-gray-800 leading-relaxed">
       {{ post.content|linebreaks }}
     </div>
@@ -20,5 +22,59 @@
       {% endif %}
     </div>
   </article>
+
+  <!-- Comments Section -->
+  <section class="mt-10">
+    <h2 class="text-2xl font-semibold mb-4">Comments</h2>
+
+    <div class="space-y-4">
+      {% if comments %}
+        {% for comment in comments %}
+          <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+            <div class="flex justify-between items-center text-sm text-gray-600">
+              <span>
+                <strong>{{ comment.author.username }}</strong> •
+                {{ comment.created_at|date:"M d, Y H:i" }}
+                {% if comment.updated_at > comment.created_at %}
+                  <span class="italic text-gray-400">(edited)</span>
+                {% endif %}
+              </span>
+              {% if user == comment.author %}
+                <span class="space-x-2">
+                  <a href="{% url 'blog:comment_edit' post_pk=post.pk pk=comment.pk %}" class="text-indigo-600">Edit</a>
+                  <a href="{% url 'blog:comment_delete' post_pk=post.pk pk=comment.pk %}" class="text-red-600">Delete</a>
+                </span>
+              {% endif %}
+            </div>
+            <p class="mt-2 text-gray-800">{{ comment.content|linebreaks }}</p>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-gray-500">No comments yet. Be the first to comment!</p>
+      {% endif %}
+    </div>
+
+    <!-- Add Comment Form -->
+    <div class="mt-8">
+      {% if user.is_authenticated %}
+        <h3 class="text-lg font-medium mb-2">Leave a comment</h3>
+        <form method="post" action="{% url 'blog:comment_create' post_pk=post.pk %}" class="space-y-4">
+          {% csrf_token %}
+          {{ comment_form.non_field_errors }}
+          <div>
+            {{ comment_form.content.errors }}
+            {{ comment_form.content }}
+          </div>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Submit
+          </button>
+        </form>
+      {% else %}
+        <p class="text-gray-600">
+          <a href="{% url 'login' %}?next={{ request.path }}" class="text-blue-600">Log in</a> to leave a comment.
+        </p>
+      {% endif %}
+    </div>
+  </section>
 </div>
 {% endblock %}
