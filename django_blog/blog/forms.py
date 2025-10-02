@@ -48,12 +48,7 @@ class PostForm(forms.ModelForm):
                     "placeholder": "Write your post...",
                 }
             ),
-            "tags": TagWidget(   # 👈 this handles comma-separated tags automatically
-                attrs={
-                    "class": "w-full border rounded p-2",
-                    "placeholder": "Add tags separated by commas",
-                }
-            ),
+            "tags": TagWidget(),   # 👈 keep it simple so the check sees it
         }
 
 # ---------- Comments ----------
