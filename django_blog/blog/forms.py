@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile, Post, Comment, Tag
+from taggit.forms import TagWidget
 
 
 # ---------- User Registration ----------
@@ -28,12 +29,8 @@ class ProfileForm(forms.ModelForm):
 
 
 # ---------- Blog Post (with tags) ----------
-class PostForm(forms.ModelForm):
-    tags = forms.CharField(
-        required=False,
-        help_text="Add tags separated by commas"
-    )
 
+class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ["title", "content", "tags"]
@@ -51,21 +48,13 @@ class PostForm(forms.ModelForm):
                     "placeholder": "Write your post...",
                 }
             ),
+            "tags": TagWidget(   # 👈 this handles comma-separated tags automatically
+                attrs={
+                    "class": "w-full border rounded p-2",
+                    "placeholder": "Add tags separated by commas",
+                }
+            ),
         }
-
-    def save(self, commit=True):
-        post = super().save(commit=False)
-        if commit:
-            post.save()
-        # Process tags from comma-separated string
-        tag_names = [t.strip() for t in self.cleaned_data["tags"].split(",") if t.strip()]
-        tag_objects = []
-        for name in tag_names:
-            tag_obj, _ = Tag.objects.get_or_create(name=name)
-            tag_objects.append(tag_obj)
-        post.tags.set(tag_objects)
-        return post
-
 
 # ---------- Comments ----------
 class CommentForm(forms.ModelForm):
