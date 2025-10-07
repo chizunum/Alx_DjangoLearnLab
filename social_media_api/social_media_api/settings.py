@@ -44,20 +44,40 @@ INSTALLED_APPS = [
 
     # local apps
     "accounts",
+
+    "posts",
+
+    "django_filters",
+
 ]
 # Use the custom user model (add this)
 AUTH_USER_MODEL = "accounts.User"
 
 # REST Framework config - include TokenAuthentication
 REST_FRAMEWORK = {
+    # 🔐 Authentication classes
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
+
+    # 🔒 Default permissions
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
+
+    # 📄 Pagination
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+
+    # 🔍 Filtering, Searching, Ordering
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
 }
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

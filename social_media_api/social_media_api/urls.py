@@ -22,6 +22,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
+    # social_media_api/urls.py (add the include)
+    path("api/", include("posts.urls")),   # e.g. /api/posts/, /api/comments/
+
 ]
 
 if settings.DEBUG:
