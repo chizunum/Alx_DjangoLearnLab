@@ -23,7 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
     # social_media_api/urls.py (add the include)
-    path("api/", include("posts.urls")),   # e.g. /api/posts/, /api/comments/
+    path("api/", include("posts.urls")),   # e.g. /api/posts/, /api/comments/path('api/accounts/', include('accounts.urls')),
+    path('api/posts/', include('posts.urls')),
 
 ]
 
