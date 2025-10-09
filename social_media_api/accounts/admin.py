@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from .models import User
+from .models import CustomUser
 
 # Register your models here.
 
-@admin.register(User)
+@admin.register(CustomUser)
 class UserAdmin(DjangoUserAdmin):
     # add bio and profile_picture to admin display/edit forms
     fieldsets = DjangoUserAdmin.fieldsets + (

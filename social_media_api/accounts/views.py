@@ -10,9 +10,14 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.shortcuts import get_object_or_404
 from .models import CustomUser
+from .serializers import RegisterSerializer, UserSerializer
 
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
-CustomUser = get_user_model()
+from rest_framework.decorators import api_view
+ 
+User = get_user_model()
 
 # -----------------------------
 # 🔹 PAGINATION
@@ -68,3 +73,37 @@ class UnfollowUserView(APIView):
         target_user = get_object_or_404(CustomUser, id=user_id)
         request.user.unfollow(target_user)
         return Response({"detail": f"You unfollowed {target_user.username}."}, status=status.HTTP_200_OK)
+
+class RegisterView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = RegisterSerializer
+
+class CustomObtainAuthToken(ObtainAuthToken):
+    """Custom token authentication to return token + user info."""
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        token = Token.objects.get(key=response.data['token'])
+        user = token.user
+        return Response({
+            'token': token.key,
+            'user_id': user.id,
+            'username': user.username,
+            'email': user.email,
+        })
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    """
+    Allows the authenticated user to view and update their own profile.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+@api_view(['GET'])
+def public_profile(request, username):
+    """Return the public profile of a user by username."""
+    user = get_object_or_404(User, username=username)
+    serializer = UserSerializer(user, context={'request': request})
+    return Response(serializer.data)

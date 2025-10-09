@@ -49,6 +49,8 @@ INSTALLED_APPS = [
 
     "django_filters",
 
+    "notifications",
+
 ]
 # Use the custom user model (add this)
 AUTH_USER_MODEL = "accounts.CustomUser"
