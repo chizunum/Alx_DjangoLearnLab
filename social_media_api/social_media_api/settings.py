@@ -51,7 +51,8 @@ INSTALLED_APPS = [
 
 ]
 # Use the custom user model (add this)
-AUTH_USER_MODEL = "accounts.User"
+AUTH_USER_MODEL = "accounts.CustomUser"
+
 
 # REST Framework config - include TokenAuthentication
 REST_FRAMEWORK = {

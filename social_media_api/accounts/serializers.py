@@ -74,7 +74,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     token = serializers.CharField(read_only=True)
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = [
             "id",
             "username",
