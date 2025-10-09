@@ -1,3 +1,4 @@
+
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -8,12 +9,16 @@ def user_profile_image_path(instance, filename):
 
 
 class User(AbstractUser):
+    """
+    Custom User model extending Django's AbstractUser.
+    Includes bio, profile picture, and social following relationships.
+    """
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(
         upload_to=user_profile_image_path, blank=True, null=True
     )
 
-    # Users this user follows (non-symmetrical relationship)
+    # Non-symmetrical ManyToMany (users can follow others without being followed back)
     following = models.ManyToManyField(
         "self",
         symmetrical=False,
@@ -25,7 +30,7 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
-    # ---- Helper methods for follow system ----
+    # ---- Helper methods for following system ----
     def follow(self, user):
         """Follow another user."""
         if user == self:
@@ -37,5 +42,5 @@ class User(AbstractUser):
         self.following.remove(user)
 
     def is_following(self, user):
-        """Check if this user follows another user."""
+        """Check if this user is following another user."""
         return self.following.filter(pk=user.pk).exists()

@@ -1,4 +1,3 @@
-# accounts/tests/test_follows.py
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
@@ -6,35 +5,52 @@ from posts.models import Post
 
 User = get_user_model()
 
-class FollowFlowTests(APITestCase):
+
+class FollowFeedTests(APITestCase):
     def setUp(self):
-        self.user1 = User.objects.create_user(username='alice', password='pass')
-        self.user2 = User.objects.create_user(username='bob', password='pass')
-        self.follow_url = lambda uid: reverse('follow-user', args=[uid])
-        self.unfollow_url = lambda uid: reverse('unfollow-user', args=[uid])
-        self.feed_url = reverse('feed')
+        self.alice = User.objects.create_user(username='alice', password='pass')
+        self.bob = User.objects.create_user(username='bob', password='pass')
+
+        # Bob's posts
+        Post.objects.create(author=self.bob, title='B1', content='bob post 1')
+        Post.objects.create(author=self.bob, title='B2', content='bob post 2')
+
+        # URLs
+        self.feed_url = '/api/posts/feed/'
+        self.follow_url = f'/api/accounts/follow/{self.bob.pk}/'
+        self.unfollow_url = f'/api/accounts/unfollow/{self.bob.pk}/'
 
     def test_follow_and_feed(self):
+        """Ensure following a user populates the feed with their posts"""
         self.client.login(username='alice', password='pass')
-        # bob creates posts
-        Post.objects.create(author=self.user2, content='Bob post 1')
-        Post.objects.create(author=self.user2, content='Bob post 2')
 
-        # initially, feed is empty (if include_self=true and alice has no posts, empty)
+        # Initially, feed should be empty (Alice follows no one)
         response = self.client.get(self.feed_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data['results']), 0)
 
-        # alice follows bob
-        resp = self.client.post(self.follow_url(self.user2.pk))
-        self.assertEqual(resp.status_code, 200)
-        # feed should now contain bob's posts
-        resp = self.client.get(self.feed_url)
-        self.assertEqual(resp.status_code, 200)
-        self.assertTrue(len(resp.data['results']) >= 2)
+        # Alice follows Bob
+        follow_response = self.client.post(self.follow_url)
+        self.assertEqual(follow_response.status_code, 200)
 
-    def test_unfollow(self):
+        # Now Alice should see Bob's posts in her feed
+        feed_response = self.client.get(self.feed_url)
+        self.assertEqual(feed_response.status_code, 200)
+        self.assertGreaterEqual(len(feed_response.data['results']), 2)
+
+    def test_unfollow_removes_feed_posts(self):
+        """Ensure unfollowing removes user's posts from feed"""
         self.client.login(username='alice', password='pass')
-        self.client.post(self.follow_url(self.user2.pk))
-        resp = self.client.post(self.unfollow_url(self.user2.pk))
-        self.assertEqual(resp.status_code, 200)
+        self.client.post(self.follow_url)
+
+        # Feed should have Bob's posts after following
+        response = self.client.get(self.feed_url)
+        self.assertGreaterEqual(len(response.data['results']), 2)
+
+        # Unfollow Bob
+        unfollow_response = self.client.post(self.unfollow_url)
+        self.assertEqual(unfollow_response.status_code, 200)
+
+        # Feed should now be empty
+        response = self.client.get(self.feed_url)
+        self.assertEqual(len(response.data['results']), 0)

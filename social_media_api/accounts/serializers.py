@@ -1,15 +1,13 @@
-# accounts/serializers.py
 from rest_framework import serializers
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
 
-# ------------------------------
-# 1️⃣ Main User Serializer
-# ------------------------------
+# ------------------------------------
+# 1️⃣ User Serializer (Full Details)
+# ------------------------------------
 class UserSerializer(serializers.ModelSerializer):
     followers_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
@@ -41,9 +39,9 @@ class UserSerializer(serializers.ModelSerializer):
         return request.user.is_following(obj)
 
 
-# ------------------------------
-# 2️⃣ Simple User Serializer (for feed & lightweight user info)
-# ------------------------------
+# ------------------------------------
+# 2️⃣ Simple User Serializer (Lightweight)
+# ------------------------------------
 class SimpleUserSerializer(serializers.ModelSerializer):
     followers_count = serializers.IntegerField(source="followers.count", read_only=True)
     following_count = serializers.IntegerField(source="following.count", read_only=True)
@@ -68,9 +66,9 @@ class SimpleUserSerializer(serializers.ModelSerializer):
         return request.user.is_following(obj)
 
 
-# ------------------------------
+# ------------------------------------
 # 3️⃣ Registration Serializer
-# ------------------------------
+# ------------------------------------
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
     token = serializers.CharField(read_only=True)
@@ -97,15 +95,15 @@ class RegisterSerializer(serializers.ModelSerializer):
             profile_picture=validated_data.get("profile_picture", None),
         )
 
-        # Create authentication token
+        # ✅ Generate authentication token
         token, _ = Token.objects.get_or_create(user=user)
         user.token = token.key
         return user
 
 
-# ------------------------------
+# ------------------------------------
 # 4️⃣ Login Serializer
-# ------------------------------
+# ------------------------------------
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)

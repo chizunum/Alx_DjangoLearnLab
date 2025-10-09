@@ -1,4 +1,3 @@
-# posts/serializers.py
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Post, Comment
@@ -6,6 +5,9 @@ from .models import Post, Comment
 User = get_user_model()
 
 
+# -------------------------------
+# 📝 POST SERIALIZER
+# -------------------------------
 class PostSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source='author.username', read_only=True)
     author_profile_picture = serializers.ImageField(
@@ -18,8 +20,8 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = [
             'id',
-            'title',               # ✅ added title
-            'content',             # ✅ added content
+            'title',
+            'content',
             'image',
             'author',
             'author_username',
@@ -30,6 +32,9 @@ class PostSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'author', 'created_at', 'updated_at']
 
 
+# -------------------------------
+# 💬 COMMENT SERIALIZER
+# -------------------------------
 class CommentSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source='author.username', read_only=True)
 
@@ -40,7 +45,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'post',
             'author',
             'author_username',
-            'content',             # ✅ correct field name
+            'content',
             'created_at',
             'updated_at',
         ]
